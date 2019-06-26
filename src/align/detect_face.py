@@ -122,7 +122,7 @@ class Network(object):
 
     def make_var(self, name, shape):
         """Creates a new TensorFlow variable."""
-        return tf.get_variable(name, shape, trainable=self.trainable)
+        return tf.compat.v1.get_variable(name, shape, trainable=self.trainable)
 
     def validate_padding(self, padding):
         """Verifies that the padding is one of the supported ones."""
@@ -150,7 +150,7 @@ class Network(object):
         assert c_o % group == 0
         # Convolution for a given input and kernel
         convolve = lambda i, k: tf.nn.conv2d(i, k, [1, s_h, s_w, 1], padding=padding)
-        with tf.variable_scope(name) as scope:
+        with tf.compat.v1.variable_scope(name) as scope:
             kernel = self.make_var('weights', shape=[k_h, k_w, c_i // group, c_o])
             # This is the common-case. Convolve the input without any further complications.
             output = convolve(inp, kernel)
@@ -277,16 +277,16 @@ def create_mtcnn(sess, model_path):
     if not model_path:
         model_path,_ = os.path.split(os.path.realpath(__file__))
 
-    with tf.variable_scope('pnet'):
-        data = tf.placeholder(tf.float32, (None,None,None,3), 'input')
+    with tf.compat.v1.variable_scope('pnet'):
+        data = tf.compat.v1.placeholder(tf.float32, (None,None,None,3), 'input')
         pnet = PNet({'data':data})
         pnet.load(os.path.join(model_path, 'det1.npy'), sess)
-    with tf.variable_scope('rnet'):
-        data = tf.placeholder(tf.float32, (None,24,24,3), 'input')
+    with tf.compat.v1.variable_scope('rnet'):
+        data = tf.compat.v1.placeholder(tf.float32, (None,24,24,3), 'input')
         rnet = RNet({'data':data})
         rnet.load(os.path.join(model_path, 'det2.npy'), sess)
-    with tf.variable_scope('onet'):
-        data = tf.placeholder(tf.float32, (None,48,48,3), 'input')
+    with tf.compat.v1.variable_scope('onet'):
+        data = tf.compat.v1.placeholder(tf.float32, (None,48,48,3), 'input')
         onet = ONet({'data':data})
         onet.load(os.path.join(model_path, 'det3.npy'), sess)
         
